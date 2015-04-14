@@ -218,3 +218,39 @@ summary(stepsPerDay$steps)
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
+1. Creating a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
+
+```r
+Sys.setlocale("LC_TIME", "C")
+```
+
+```
+## [1] "C"
+```
+
+```r
+completeData[, "type"] <- factor(ifelse(weekdays(data$date, abbreviate = T) %in% c("Sat", "Sun"), "weekend", "weekday"))
+str(completeData)
+```
+
+```
+## 'data.frame':	17568 obs. of  4 variables:
+##  $ steps   : num  2 2 2 2 2 2 2 2 2 2 ...
+##  $ date    : Date, format: "2012-10-01" "2012-10-01" ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+##  $ type    : Factor w/ 2 levels "weekday","weekend": 1 1 1 1 1 1 1 1 1 1 ...
+```
+
+2. Created a panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+
+```r
+par(mfrow = c(2, 1))
+sub <- subset(completeData, type == "weekend")
+steps <- aggregate(steps ~ interval, sub, mean)
+plot(steps$interval, steps$steps, type = "l", xlab = "Interval", ylab = "Average steps", main = "Weekend")
+sub <- subset(completeData, type == "weekday")
+steps <- aggregate(steps ~ interval, sub, mean)
+plot(steps$interval, steps$steps, type = "l", xlab = "Interval", ylab = "Average steps", main = "Weekday")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
