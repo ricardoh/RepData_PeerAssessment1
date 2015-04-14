@@ -23,7 +23,7 @@ str(data)
 1. Total number of steps taken per day
 
 ```r
-stepsPerDay <- aggregate(steps ~ date, data, sum)
+stepsPerDay <- aggregate(steps ~ date, data, sum, na.rm = T)
 stepsPerDay
 ```
 
@@ -104,8 +104,29 @@ summary(stepsPerDay$steps)
 ```
 
 ## What is the average daily activity pattern?
+1. Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
+```r
+stepsPerInterval <- aggregate(steps ~ interval, data, mean, na.rm = T)
+plot(stepsPerInterval$interval, stepsPerInterval$steps, type = "l", xlab = "Interval", ylab = "Average steps")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+
+2. on average across all the days in the dataset, the 08:35 5-minute interval contains the maximum number of steps
+
+```r
+head(stepsPerInterval[order(stepsPerInterval$steps, decreasing = T), ], 5)
+```
+
+```
+##     interval    steps
+## 104      835 206.1698
+## 105      840 195.9245
+## 107      850 183.3962
+## 106      845 179.5660
+## 103      830 177.3019
+```
 
 ## Imputing missing values
 
