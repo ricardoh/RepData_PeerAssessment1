@@ -113,7 +113,7 @@ plot(stepsPerInterval$interval, stepsPerInterval$steps, type = "l", xlab = "Inte
 
 ![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
 
-2. on average across all the days in the dataset, the 08:35 5-minute interval contains the maximum number of steps
+2. On average across all the days in the dataset, the 08:35 5-minute interval contains the maximum number of steps
 
 ```r
 head(stepsPerInterval[order(stepsPerInterval$steps, decreasing = T), ], 5)
@@ -129,7 +129,92 @@ head(stepsPerInterval[order(stepsPerInterval$steps, decreasing = T), ], 5)
 ```
 
 ## Imputing missing values
+1. Analysis of total number of missing values in the dataset
 
+```r
+missingValues <- nrow(data) - sum(complete.cases(data))
+missingValues
+```
 
+```
+## [1] 2304
+```
+
+```r
+missingValues / nrow(data)
+```
+
+```
+## [1] 0.1311475
+```
+
+```r
+sum(is.na(data$steps))
+```
+
+```
+## [1] 2304
+```
+
+```r
+sum(is.na(data$date))
+```
+
+```
+## [1] 0
+```
+
+```r
+sum(is.na(data$interval))
+```
+
+```
+## [1] 0
+```
+
+2. I´m filling the missing values with the mean for that 5-minute interval and create a new dataset
+
+```r
+avgStepsPerInterval <- aggregate(steps ~ interval, data, mean, na.rm = T)
+avgStepsPerInterval <- transform(avgStepsPerInterval, steps = round(steps, digits = 0))
+r <- merge(data, avgStepsPerInterval, by="interval", suffixes=c(".data", ".avg"))
+na.idx <- which(is.na(data$steps))
+completeData <- data
+completeData[na.idx,"steps"] <- r[na.idx,"steps.avg"]
+nrow(completeData) - sum(complete.cases(completeData))
+```
+
+```
+## [1] 0
+```
+
+3. The initial datased had 13.11% of missing values. After imputing missing values I observed increases in the mean and median. The mean changed from 10770 to 10890 (1.11% increase) and the median changed from 10760 to 11020 (2,41% increase).
+
+```r
+newStepsPerDay <- aggregate(steps ~ date, completeData, sum)
+par(mfrow = c(1, 2))
+hist(newStepsPerDay$steps, main = "With imputed missing values", xlab = NULL, ylab = NULL)
+hist(stepsPerDay$steps, main = "With missing values", xlab = NULL, ylab = NULL)
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
+
+```r
+summary(newStepsPerDay$steps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8821   11020   10890   13460   24150
+```
+
+```r
+summary(stepsPerDay$steps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##      41    8841   10760   10770   13290   21190
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
